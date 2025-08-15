@@ -43,9 +43,9 @@ function recomputeRegister($kioskRegNo, $referenceNo, $pdo)
     ];
     $register = fetch($sql, $params, $pdo);
 
-    $totals['total'] = (float) ($register->total ?? 0);
-    $totals['subtotal'] = (float) ($register->gross ?? 0);
-    $totals['discount'] = (float) ($register->discount ?? 0);
+    $totals['total'] = (float) (round($register->total, 2) ?? 0);
+    $totals['subtotal'] = (float) (round($register->gross, 2) ?? 0);
+    $totals['discount'] = (float) (round($register->discount, 1) ?? 0);
 
     $sql = "EXEC Proc_ComputeServiceCharge_Kiosk :kioskRegNo, :referenceNo";
     $stmt = $pdo->prepare($sql);
@@ -58,7 +58,8 @@ function recomputeRegister($kioskRegNo, $referenceNo, $pdo)
     $params = [':kioskRegNo' => $kioskRegNo];
     $serviceCharge = fetch($sql, $params, $pdo);
 
-    $totals['service_charge'] = (float) ($serviceCharge->Amount ?? 0);
-    $totals['total'] += (float) $totals['service_charge'];
+    $totals['service_charge'] = (float) (round($serviceCharge->Amount, 2) ?? 0);
+
+    $totals['total'] = (float) (round($totals['total'] + $totals['service_charge'], 2) ?? 0);
     return $totals;
 }

@@ -21,7 +21,7 @@ try {
     if (!$kioskRegNo) throw new Exception('KioskRegNo is required');
 
     $sql = "SELECT MAX(CAST(SUBSTRING(ReferenceNo, 2, LEN(ReferenceNo) - 1) AS INT)) AS nextRef FROM KIOSK_TransactionItem WHERE KioskRegNo = :kioskRegNo";
-    $params = ['kioskRegNo' => $kioskRegNo];
+    $params = [':kioskRegNo' => $kioskRegNo];
     $result = fetch($sql, $params, $pdo);
 
     $ref = $result->nextRef ? $result->nextRef + 1 : 1;
