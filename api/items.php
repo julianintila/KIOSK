@@ -1,9 +1,5 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: *');
@@ -14,15 +10,8 @@ try {
 
     $response = [];
 
-    function fetchData($sql, $params = [], $pdo)
-    {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
-
     $sql = "SELECT ID as id, Name as name, OrderNo as order_no FROM Category WHERE Inactive = 0 AND COALESCE(OrderNo, 0) > 0 ORDER BY COALESCE(OrderNo, 0)";
-    $categories = fetchData($sql, [], $pdo);
+    $categories = fetchAll($sql, [], $pdo);
 
     $totalCategories = count($categories);
     $filteredCategories = [];
@@ -36,7 +25,7 @@ try {
 
         $sql = "SELECT ID as id, ItemLookupCode as item_code, Description as description, ExtendedDescription as extended_description, DepartmentID as department_id, CategoryID as category_id, SubCategoryID as subcategory_id, Price as price, Taxable as taxable, OrderNo as order_no FROM Item WHERE CategoryID = :category_id AND ItemStatus = :status AND Inactive = 0 AND COALESCE(OrderNo, 0) > 0 ORDER BY COALESCE(OrderNo, 0)";
         $params = [':category_id' => $category->id, ':status' => 'Regular Item'];
-        $items = fetchData($sql, $params, $pdo);
+        $items = fetchAll($sql, $params, $pdo);
 
         foreach ($items as $item) {
             $item->id = (int)$item->id;
