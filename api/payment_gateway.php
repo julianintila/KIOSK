@@ -19,11 +19,10 @@ try {
     if (empty($json)) throw new Exception('No data received');
     $data = json_decode($json, true);
     if (json_last_error() !== JSON_ERROR_NONE) throw new Exception('Invalid JSON: ' . json_last_error_msg());
-    if (empty($data['KioskRegNo'])) throw new Exception('KioskRegNo is required');
+    if (!$kioskRegNo) throw new Exception('KioskRegNo is required');
     if (empty($data['ReferenceNo'])) throw new Exception('ReferenceNo is required');
     if (empty($data['Status'])) throw new Exception('Status is required and must be "pay" or "checking"');
 
-    $kioskRegNo = $data['KioskRegNo'];
     $referenceNo = $data['ReferenceNo'];
     $status = $data['Status'];
 

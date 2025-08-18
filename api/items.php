@@ -17,7 +17,8 @@ try {
     $filteredCategories = [];
 
     foreach ($categories as $index => $category) {
-        $category->id = (int)$category->id;
+        $categoryID = (int)$category->id;
+        $category->id = $categoryID;
         $category->order_no = (int)$category->order_no;
 
         $category->previous_category_id = $index > 0 ? (int)$categories[$index - 1]->id : null;
@@ -28,8 +29,19 @@ try {
             $category->required = true;
         }
 
+        $sql = "SELECT LTRIM(RTRIM(Description)) name FROM KIOSK_Category WHERE CategoryID = :category_id AND COALESCE(OrderNo, 0) > 0 ORDER BY COALESCE(OrderNo, 0)";
+        $params = [':category_id' => $categoryID];
+        $kioskCategories = fetchAll($sql, $params, $pdo);
+        $category->descriptions = $kioskCategories;
+
+        $sql = "SELECT LTRIM(RTRIM(Notes)) name FROM KIOSK_Category WHERE CategoryID = :category_id AND Notes IS NOT NULL AND COALESCE(OrderNo, 0) > 0 ORDER BY COALESCE(OrderNo, 0)";
+        $params = [':category_id' => $categoryID];
+        $kioskCategories = fetchAll($sql, $params, $pdo);
+        $category->notes = $kioskCategories;
+
+
         $sql = "SELECT ID as id, ItemLookupCode as item_code, Description as description, ExtendedDescription as extended_description, DepartmentID as department_id, CategoryID as category_id, SubCategoryID as subcategory_id, Price as price, Taxable as taxable, OrderNo as order_no FROM Item WHERE CategoryID = :category_id AND ItemStatus = :status AND Inactive = 0 AND COALESCE(OrderNo, 0) > 0 ORDER BY COALESCE(OrderNo, 0)";
-        $params = [':category_id' => $category->id, ':status' => 'Regular Item'];
+        $params = [':category_id' => $categoryID, ':status' => 'Regular Item'];
         $items = fetchAll($sql, $params, $pdo);
 
         foreach ($items as $item) {
