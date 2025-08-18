@@ -22,10 +22,9 @@ try {
     $data = json_decode($json, true);
 
     if (json_last_error() !== JSON_ERROR_NONE) throw new Exception('Invalid JSON: ' . json_last_error_msg());
-    if (empty($data['KioskRegNo'])) throw new Exception('KioskRegNo is required');
+    if (!$kioskRegNo) throw new Exception('KioskRegNo is required');
     if (empty($data['ReferenceNo'])) throw new Exception('ReferenceNo is required');
 
-    $kioskRegNo = $data['KioskRegNo'];
     $referenceNo = $data['ReferenceNo'];
     $action = $data['Action'] ?? null;
     $name = $data['name'] ?? null;
@@ -70,14 +69,6 @@ try {
     } elseif ($action === 'Discount') {
         if (!$discount_code) throw new Exception('discount code is required');
 
-        $sql = "UPDATE KIOSK_DiscountRequests SET status = 'used', used_at = GETDATE() WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'accepted' AND discount_code = :discount_code";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':referenceNo' => $referenceNo,
-            ':kioskRegNo' => $kioskRegNo,
-            ':discount_code' => $discount_code
-        ]);
-
         $sql = "SELECT * FROM KIOSK_DiscountRequests WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'used' AND discount_code = :discount_code";
         $params = [
             ':referenceNo' => $referenceNo,
@@ -85,6 +76,16 @@ try {
             ':discount_code' => $discount_code
         ];
         $result = fetch($sql, $params, $pdo);
+
+        if (!$result) throw new Exception('Discount code is invalid.');
+
+        $sql = "UPDATE KIOSK_DiscountRequests SET status = 'used', used_at = GETDATE() WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'accepted' AND discount_code = :discount_code";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':referenceNo' => $referenceNo,
+            ':kioskRegNo' => $kioskRegNo,
+            ':discount_code' => $discount_code
+        ]);
 
         $sql = "UPDATE KIOSK_TransactionItem SET DiscountCode = :discount_type WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
         $stmt = $pdo->prepare($sql);

@@ -16,8 +16,6 @@ try {
 
     $response = [];
 
-    $kioskRegNo = $_GET['KioskRegNo'] ?? null;
-
     if (!$kioskRegNo) throw new Exception('KioskRegNo is required');
 
     $sql = "SELECT MAX(CAST(SUBSTRING(ReferenceNo, 2, LEN(ReferenceNo) - 1) AS INT)) AS nextRef FROM KIOSK_TransactionItem WHERE KioskRegNo = :kioskRegNo";
