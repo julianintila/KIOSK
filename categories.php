@@ -4,113 +4,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+    <title>HIKINIKU TO COME</title>
+    <link rel="stylesheet" href="css/categories.css">
+    <style>
+
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <div id="category-container"></div>
-        <div id="item-container"></div>
+    <div class="header">
+        <img src="images/logo/namelogo.png" style="height: 150px;" alt="">
     </div>
 
+    <div class="container" id="category-container"></div>
     <script id="category-template" type="text/x-handlebars-template">
-        <div class="category" data-category-id="{{id}}">
-            <!-- left panel -->
-            <div></div>
-            <!-- right panel -->
-            <div>
-                <div class="category-name" style="cursor:pointer">{{name}}</div>
-                <ul>
-                {{#each descriptions}}
-                    <li>{{name}}</li>
-                {{/each}}
-                </ul>
-
-                <ul>
-                {{#each notes}}
-                    <li>{{name}}</li>
-                {{/each}}
-                </ul>
-            </div>
-        </div>
+        {{#each this}}
+            {{#unless (eq name "HIKINIKU TO COME Set")}}
+                <div class="menu-section category" data-category-id="{{id}}">
+                    <div class="section-icon">
+                        <img src="{{getCategoryImage name}}" alt="{{name}}">
+                    </div>
+                    <div class="section-content">
+                        <div class="section-header">{{name}}</div>
+                        {{#each descriptions}}
+                            <div class="menu-item">{{name}}</div>
+                        {{/each}}
+                        {{#each notes}}
+                            <div class="menu-item">{{name}}</div>
+                        {{/each}}
+                    </div>
+                </div>
+            {{/unless}}
+        {{/each}}
     </script>
+
+
 
     <script id="item-template" type="text/x-handlebars-template">
-        <div class="items" data-catergory-id="{{id}}">
-            <h2>{{name}}</h2>
-            <div>
-                <div>
-                    <button id="back-btn">X</button>
+        <div class="category-detail">
+            <div class="back-controls">
+                <button id="back-btn" class="control-btn">← Back to Categories</button>
+                <button id="back-add-to-cart" class="control-btn cart-btn">Add to Cart</button>
+            </div>
+            <h2 class="category-title">{{name}}</h2>
+            {{#each items}}
+            <div class="menu-item item-detail" data-item-id="{{id}}">
+                <div class="item-icon"></div>
+                <div class="item-details">
+                    <div class="item-name">{{name}}</div>
+                    <div class="item-description">{{description}}</div>
+                    <div class="item-price">${{price}}</div>
                 </div>
-                {{#each items}}
-                <div data-item-id="{{this.id}}">
-                    <div>
-                        <img src="" alt="">
-                    </div>
-                    <div>
-                        <p>{{extended_description}}</p>
-                        <p>{{price}}</p>
-                    </div>
-                    <div>
-                        <button class="decrease">-</button>
-                        <span class="quantity">0</span>
-                        <button class="increase">+</button>
-                    </div>
-                </div>
-                {{/each}}
-                <div>
-                    <!-- commit the changes to the cart -->
-                    <button id="back-add-to-cart">Add to Cart</button>
+                <div class="quantity-controls">
+                    <button class="quantity-btn decrease">-</button>
+                    <span class="quantity">0</span>
+                    <button class="quantity-btn increase">+</button>
                 </div>
             </div>
+            {{/each}}
         </div>
     </script>
-    <script>
-        localStorage.removeItem("categories")
-        localStorage.removeItem("currentIndex")
 
-        let categories = JSON.parse(localStorage.getItem("categories")) || [];
-        let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    <!-- Handlebars -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script>
+        Handlebars.registerHelper("getCategoryImage", function(name) {
+            const map = {
+                "hikiniku to come set": "images/category/maindish.png",
+                "extras": "images/category/extras.png",
+                "side dishes": "images/category/potsalad.png",
+                "non-alcoholic": "images/category/gingerale.png",
+                "alcohol": "images/category/beer.png",
+                "shirts": "images/category/shirt.png"
+            };
+
+            return map[name.toLowerCase()] || "images/category/default.png";
+        });
+
+        let categories = [];
+        let cart = [];
 
         console.log("cart:", cart);
 
-
+        // Fetch from API
         fetch("api/items.php")
-            .then((res) => res.json())
+            .then((res) => {
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Response is not JSON");
+                }
+                return res.json();
+            })
             .then((data) => {
                 if (data.categories && data.categories.length) {
-                    if (!categories.length) categories = data.categories;
+                    categories = data.categories;
                     renderCategories();
                 }
             })
-            .catch((err) => console.error("error:", err));
+            .catch((err) => {
+                console.error("Failed to load menu data:", err);
+                const container = document.getElementById("category-container");
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 40px; border: 2px solid white;">
+                        <h2>Unable to load menu</h2>
+                        <p>Please check your API connection and try again.</p>
+                        <p style="font-size: 12px; opacity: 0.7; margin-top: 20px;">Error: ${err.message}</p>
+                    </div>
+                `;
+            });
 
         function saveState() {
             console.log("cart:", cart);
-
-            localStorage.setItem("categories", JSON.stringify(categories));
-            localStorage.setItem("currentIndex", currentIndex);
-            localStorage.setItem("cart", JSON.stringify(cart));
         }
 
         function renderCategories() {
             const container = document.getElementById("category-container");
-            container.innerHTML = "";
-            categories.forEach((category) => {
-                const source = document.getElementById("category-template").innerHTML;
-                const template = Handlebars.compile(source);
-                const html = template(category);
-                container.insertAdjacentHTML("beforeend", html);
-            });
+            const source = document.getElementById("category-template").innerHTML;
+            const template = Handlebars.compile(source);
+            const html = template(categories);
+            container.innerHTML = html;
 
-            // category click
+            // category click (including featured hikiniku)
             document.querySelectorAll(".category").forEach(el => {
                 el.addEventListener("click", (e) => {
                     const catId = e.currentTarget.dataset.categoryId;
                     const category = categories.find(c => c.id == catId);
-                    showItems(category);
+                    if (category) {
+                        showItems(category);
+                    }
                 });
             });
         }
@@ -121,21 +143,19 @@
             const tpl = Handlebars.compile(src);
             container.innerHTML = tpl(category);
 
-            // build temp qty map from cart (supports older `qty` or newer `quantity`)
             const tempQuantities = {};
             category.items.forEach(item => {
                 const existing = cart.find(c => c.id == item.id);
                 tempQuantities[item.id] = existing ? (existing.quantity ?? existing.qty ?? 0) : 0;
             });
 
-            // wire up +/- per item (select the elements you actually render)
+            // wire up +/- per item
             container.querySelectorAll("[data-item-id]").forEach(el => {
-                const itemId = el.dataset.itemId; // string is fine for object keys
+                const itemId = el.dataset.itemId;
                 const qtySpan = el.querySelector(".quantity");
                 const decBtn = el.querySelector(".decrease");
                 const incBtn = el.querySelector(".increase");
 
-                // init UI
                 qtySpan.textContent = tempQuantities[itemId] || 0;
 
                 decBtn.addEventListener("click", () => {
@@ -179,6 +199,10 @@
                 renderCategories();
             });
         }
+
+        Handlebars.registerHelper('eq', function(a, b) {
+            return a === b;
+        });
     </script>
 
 </body>
