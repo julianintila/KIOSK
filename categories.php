@@ -39,7 +39,6 @@
     </script>
 
 
-
     <script id="item-template" type="text/x-handlebars-template">
         <div class="category-detail">
             <div class="back-controls">
@@ -52,7 +51,7 @@
                 <div class="item-icon"></div>
                 <div class="item-details">
                     <div class="item-name">{{name}}</div>
-                    <div class="item-description">{{description}}</div>
+                    <div class="item-description">{{extended_description}}</div>
                     <div class="item-price">${{price}}</div>
                 </div>
                 <div class="quantity-controls">
@@ -66,8 +65,14 @@
     </script>
 
     <!-- Handlebars -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js"></script>
+    <script src="./js/handlebars.min.js"></script>
     <script>
+        let categories = JSON.parse(localStorage.getItem("categories")) || [];
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        const referenceNo = localStorage.getItem("referenceNo") || 0;
+
+        console.log("initial cart:", cart);
+
         Handlebars.registerHelper("getCategoryImage", function(name) {
             const map = {
                 "hikiniku to come set": "images/category/maindish.png",
@@ -81,24 +86,18 @@
             return map[name.toLowerCase()] || "images/category/default.png";
         });
 
-        let categories = [];
-        let cart = [];
-
-        console.log("cart:", cart);
 
         // Fetch from API
         fetch("api/items.php")
-            .then((res) => {
-                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-                const contentType = res.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new Error("Response is not JSON");
-                }
-                return res.json();
-            })
+            .then((res) => res.json())
             .then((data) => {
-                if (data.categories && data.categories.length) {
-                    categories = data.categories;
+                if (!data.success) {
+                    console.error("Failed to load menu data:", data.message);
+                    return;
+                }
+
+                if (data.data && data.data.length) {
+                    categories = data.data;
                     renderCategories();
                 }
             })
@@ -114,8 +113,41 @@
                 `;
             });
 
-        function saveState() {
-            console.log("cart:", cart);
+        function addToCart() {
+            if (!cart.length) {
+                console.warn("Cart is empty!");
+                return;
+            }
+            if (referenceNo === 0) {
+                console.warn("No reference number found!");
+                return;
+            }
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+            const body = {
+                ReferenceNo: referenceNo,
+                cart: cart,
+            };
+
+            const options = {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(body),
+            };
+
+            fetch("api/add_to_cart.php", options)
+                .then((result) => result.json())
+                .then((data) => {
+                    if (!data.success) {
+                        console.error("Failed to add to cart:", data.message);
+                        return;
+                    }
+                    localStorage.setItem("totals", JSON.stringify(data.data));
+                })
+                .catch((err) => console.error("error:", err));
         }
 
         function renderCategories() {
@@ -195,7 +227,7 @@
                     }
                 });
 
-                saveState();
+                addToCart();
                 renderCategories();
             });
         }

@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>HIKINIKU</title>
-  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+  <script src="./js/handlebars.min.js"></script>
   <script src="js/script.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -76,6 +76,7 @@
   </script>
 
   <script>
+    const referenceNo = localStorage.getItem("referenceNo") || 0;
     let categories = JSON.parse(localStorage.getItem("categories")) || [];
     let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -84,8 +85,13 @@
     fetch("api/items.php")
       .then((res) => res.json())
       .then((data) => {
-        if (data.categories && data.categories.length) {
-          if (!categories.length) categories = data.categories;
+        if (!data.success) {
+          console.error("Failed to fetch categories:", data.message);
+          return;
+        }
+
+        if (data.data && data.data.length) {
+          if (!categories.length) categories = data.data;
           renderCategory(currentIndex);
         }
       })
@@ -121,12 +127,12 @@
       const itemEl = document.querySelector(`.item[data-item-id='${itemId}']`);
       if (itemEl) {
         itemEl.querySelector(".quantity").textContent = item.quantity;
-        itemEl.querySelector(".total").textContent =
-          "Total: " + item.total.toFixed(2);
+        // itemEl.querySelector(".total").textContent =
+        //   "Total: " + item.total.toFixed(2);
       }
 
       saveState();
-      console.log("cart:", cart);
+      // console.log("cart:", cart);
     }
 
     function renderCategory(index) {
@@ -148,8 +154,8 @@
         const item = categories[currentIndex].items.find((i) => i.id === itemId);
         if (item) {
           itemEl.querySelector(".quantity").textContent = item.quantity || 0;
-          itemEl.querySelector(".total").textContent =
-            "Total: " + (item.total || 0).toFixed(2);
+          // itemEl.querySelector(".total").textContent =
+          //   "Total: " + (item.total || 0).toFixed(2);
         }
       });
     }
@@ -168,9 +174,13 @@
         console.warn("Cart is empty!");
         return;
       }
+      if (referenceNo === 0) {
+        console.warn("No reference number found!");
+        return;
+      }
+
       const body = {
-        kioskRegNo: "1",
-        ReferenceNo: "A0001",
+        ReferenceNo: referenceNo,
         cart: cart,
       };
 
@@ -185,21 +195,12 @@
       fetch("api/add_to_cart.php", options)
         .then((result) => result.json())
         .then((data) => {
-          const {
-            discount,
-            service_charge,
-            subtotal,
-            total
-          } = data;
-          localStorage.setItem(
-            "totals",
-            JSON.stringify({
-              discount,
-              service_charge,
-              subtotal,
-              total
-            })
-          );
+          if (!data.success) {
+            console.error("Failed to add to cart:", data.message);
+            return;
+          }
+          localStorage.setItem("totals", JSON.stringify(data.data));
+
           window.location.href = "cart.php";
         })
         .catch((err) => console.error("error:", err));

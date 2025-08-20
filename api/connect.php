@@ -8,7 +8,7 @@ $username     = $config['db_user'];
 $password     = $config['db_pass'];
 $kioskRegNo   = $config['register_no'] ?? null;
 
-$pdo = new PDO("sqlsrv:Server=$serverName;Database=$databaseName", $username, $password);
+$pdo = new PDO("sqlsrv:Server=$serverName;Database=$databaseName;Encrypt=no;TrustServerCertificate=yes", $username, $password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 function fetchAll($sql, $params = [], $pdo)
@@ -62,5 +62,6 @@ function recomputeRegister($kioskRegNo, $referenceNo, $pdo)
     $totals['service_charge'] = (float) (round($serviceCharge->Amount, 2) ?? 0);
 
     $totals['total'] = (float) (round($totals['total'] + $totals['service_charge'], 2) ?? 0);
+
     return $totals;
 }
