@@ -35,7 +35,7 @@ function recomputeRegister($kioskRegNo, $referenceNo, $pdo)
         ':referenceNo' => $referenceNo
     ]);
 
-    $sql = "SELECT ISNULL(SUM(ExtendedAmt), 0) total, ISNULL(SUM(LineDiscount), 0) discount, ISNULL(SUM(OriginalPrice), 0) gross 
+    $sql = "SELECT ISNULL(SUM(ExtendedAmt), 0) total, ISNULL(SUM(LineDiscount), 0) discount, ISNULL(SUM(OriginalPrice * Quantity), 0) gross 
             FROM [KIOSK_TransactionItem] 
             WHERE KioskRegNo = :kioskRegNo AND ReferenceNo = :referenceNo";
     $params = [

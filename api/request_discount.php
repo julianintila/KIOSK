@@ -75,7 +75,7 @@ try {
     } elseif ($action === 'Discount') {
         if (!$discount_code) throw new Exception('discount code is required', 406);
 
-        $sql = "SELECT * FROM KIOSK_DiscountRequests WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'used' AND discount_code = :discount_code";
+        $sql = "SELECT * FROM KIOSK_DiscountRequests WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'accepted' AND discount_code = :discount_code";
         $params = [
             ':referenceNo' => $referenceNo,
             ':kioskRegNo' => $kioskRegNo,

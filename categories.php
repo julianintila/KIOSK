@@ -14,6 +14,7 @@
 <body>
     <div class="header">
         <img src="images/logo/namelogo.png" style="height: 150px;" alt="">
+        <button id="btn-back-to-cart">Back to Cart</button>
     </div>
 
     <div class="container" id="category-container"></div>
@@ -70,6 +71,11 @@
         let categories = JSON.parse(localStorage.getItem("categories")) || [];
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
         const referenceNo = localStorage.getItem("referenceNo") || 0;
+
+        const btnBackToCart = document.getElementById("btn-back-to-cart");
+        btnBackToCart.addEventListener("click", () => {
+            window.location.href = "cart.php";
+        })
 
         console.log("initial cart:", cart);
 

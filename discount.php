@@ -5,30 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discount</title>
+    <script src="./js/script.js"></script>
 </head>
 
 <body>
     <div>Discount</div>
-    <p id="error_msg"></p>
-    <p id="success_msg"></p>
-
     <div>
-        <label for="">Name</label>
-        <input type="text" id="name" placeholder="Enter name of the card holder" />
+        <p id="error_msg"></p>
+        <p id="success_msg"></p>
+
+        <div>
+            <label for="">Name</label>
+            <input type="text" id="name" placeholder="Enter name of the card holder" />
+        </div>
+        <div>
+            <label for="">Discount ID Number</label>
+            <input type="text" id="id_number" placeholder="Enter discount ID number" />
+        </div>
+        <button id="btnRequestDiscountCode">Request Discount Code</button>
+
+        <div>
+            <label for="">Discount Code</label>
+            <input type="text" id="discount_code" placeholder="Enter discount code" />
+        </div>
     </div>
     <div>
-        <label for="">Discount ID Number</label>
-        <input type="text" id="id_number" placeholder="Enter discount ID number" />
+        <div>
+            <span>Subtotal</span>
+            <span id="subtotal"></span>
+        </div>
+        <div>
+            <span>Discount</span>
+            <span id="discount_amount"></span>
+        </div>
+        <div>
+            <span>Service Charge</span>
+            <span id="service-charge"></span>
+        </div>
+        <div>
+            <span>Total</span>
+            <span id="total"></span>
+        </div>
     </div>
-    <button id="btnRequestDiscountCode">Request Discount Code</button>
-
     <div>
-        <label for="">Discount Code</label>
-        <input type="text" id="discount_code" placeholder="Enter discount code" />
+        <button id="btnBack">Back</button>
+        <button id="btnProceedToPayment">Proceed to Payment</button>
     </div>
-
-    <button id="btnBack">Back</button>
-    <button id="btnProceedToPayment">Proceed to Payment</button>
 
     <script>
         const referenceNo = localStorage.getItem("referenceNo") || 0;
@@ -42,6 +64,8 @@
 
         const btnBack = document.getElementById('btnBack');
         const btnProceedToPayment = document.getElementById('btnProceedToPayment');
+
+        showTotals()
 
         function clearMessages() {
             errorMsg.textContent = '';
@@ -136,6 +160,8 @@
                     }
                     successMsg.textContent = data.message;
                     localStorage.setItem("totals", JSON.stringify(data.data));
+
+                    showTotals();
                 });
         }
 
@@ -162,9 +188,13 @@
         discountCodeInput.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                debouncedApplyDiscountCode.cancel(); // cancel pending debounce
-                applyDiscountCode(); // run immediately
+                debouncedApplyDiscountCode.cancel();
+                applyDiscountCode();
             }
+        });
+
+        btnProceedToPayment.addEventListener('click', function(e) {
+            window.location.href = 'payment.php';
         });
 
         btnBack.addEventListener('click', function() {
@@ -189,12 +219,8 @@
                 .then(res => res.json())
                 .then(data => {
                     clearMessages();
-
-                    if (!data.success) {
-                        return;
-                    }
+                    if (!data.success) return;
                     localStorage.setItem("totals", JSON.stringify(data.data));
-
                     window.location.href = 'cart.php';
                 });
         });

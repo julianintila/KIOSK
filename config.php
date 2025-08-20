@@ -1,10 +1,10 @@
 <?php
 
 return array(
-    'db_server' => ' 192.168.100.78',
+    'db_server' => '.',
     'db_name' => 'HIKINIKU',
     'db_user' => 'sa',
-    'db_pass' => 'PSC@dmin',
+    'db_pass' => 'psc',
     'printer_names' =>
     array(
         0 => 'POS80',
