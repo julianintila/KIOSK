@@ -73,14 +73,33 @@
         btnBackToMenu.addEventListener("click", () => {
             window.location.href = "categories.php";
         })
-        btnNext.addEventListener("click", () => {
-            const hasPrivilege = confirm("Do you have a privilege card?");
+        btnNext.addEventListener("click", async () => {
+            const totals = JSON.parse(localStorage.getItem("totals")) || {};
+            const hasDiscount = totals.discount && totals.discount > 0;
 
-            if (hasPrivilege) {
-                window.location.href = "discount.php";
-            } else {
-                window.location.href = "payment.php";
+            if (hasDiscount) {
+                const payload = {
+                    Action: 'NoDiscount',
+                    ReferenceNo: referenceNo
+                }
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }
+
+                const res = await fetch('api/request_discount.php', options);
+                const data = await res.json();
+
+                if (data.success) {
+                    localStorage.setItem("totals", JSON.stringify(data.data));
+                }
             }
+
+            const hasPrivilege = confirm("Do you have a privilege card?");
+            window.location.href = hasPrivilege ? "discount.php" : "payment.php";
         })
         showTotals();
         renderCart();

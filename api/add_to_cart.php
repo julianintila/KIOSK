@@ -33,6 +33,8 @@ try {
 
     $referenceNo = $data['ReferenceNo'];
 
+    $pdo->beginTransaction();
+
     $sql = "DELETE from KIOSK_TransactionItem WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':referenceNo' => $referenceNo, ':kioskRegNo' => $kioskRegNo]);
@@ -60,11 +62,16 @@ try {
     }
     $totals = recomputeRegister($kioskRegNo, $referenceNo, $pdo);
 
+    $pdo->commit();
+
     $response['success'] = true;
     $response['data'] = $totals;
     $response['message'] = 'Item added to cart successfully';
     http_response_code(200);
 } catch (\Exception $e) {
+    if ($pdo && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code($e->getCode() ?: 500);
     $response['message'] = $e->getMessage();
     $response['data'] = [];

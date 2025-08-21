@@ -35,6 +35,8 @@ try {
     $status = $data['Status'];
     $status = strtolower($status);
 
+    $pdo->beginTransaction();
+
     if ($status == 'pay') {
         if (empty($data['PaymentType'])) throw new Exception('PaymentType is required');
         $paymentType = $data['PaymentType'];
@@ -160,8 +162,13 @@ try {
         $response['success'] = true;
     }
 
+    $pdo->commit();
+
     http_response_code(200);
 } catch (\Exception $e) {
+    if ($pdo && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code($e->getCode() ?: 500);
     $response['success'] = false;
     $response['message'] = $e->getMessage();

@@ -38,6 +38,8 @@ try {
 
     $message = null;
 
+    $pdo->beginTransaction();
+
     if ($action === 'RequestDiscount') {
         if (!$name) throw new Exception('Enter name of the card holder', 406);
         if (!$id_number) throw new Exception('Enter discount ID number', 406);
@@ -54,9 +56,16 @@ try {
 
         if ($result) throw new Exception('A discount request for this ID has already been submitted and is pending approval. Please wait for processing or contact the cashier for assistance.', 406);
 
-        $sql = "UPDATE KIOSK_DiscountRequests SET status = 'rejected', rejected_at = GETDATE() WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'pending'";
+        $sql = "UPDATE KIOSK_DiscountRequests SET status = 'rejected', rejected_at = GETDATE() WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status <> 'rejected'";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':referenceNo' => $referenceNo, ':kioskRegNo' => $kioskRegNo]);
+
+        $sql = "UPDATE KIOSK_TransactionItem SET DiscountCode = '' WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':referenceNo' => $referenceNo,
+            ':kioskRegNo' => $kioskRegNo
+        ]);
 
         $sql = "INSERT INTO [KIOSK_DiscountRequests] 
             (name, discount_id, register_no, datetime, status, ReferenceNo) 
@@ -101,7 +110,15 @@ try {
             ':kioskRegNo' => $kioskRegNo
         ]);
 
-        $message = 'Discount has been successfully applied.';
+        $sql = "SELECT * FROM ReasonCode WHERE Code = :reasonCode";
+        $params = [':reasonCode' => $result->discount_type];
+        $reason = fetch($sql, $params, $pdo);
+        if (!$reason) throw new Exception('Invalid discount type.', 406);
+
+        $message = $reason->Description
+            ? $reason->Description . ' has been successfully applied.'
+            : 'Discount has been successfully applied.';
+
         http_response_code(200);
     } else {
         $sql = "DELETE from KIOSK_DiscountRequests WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo";
@@ -120,10 +137,15 @@ try {
 
     $totals = recomputeRegister($kioskRegNo, $referenceNo, $pdo);
 
+    $pdo->commit();
+
     $response['success'] = true;
     $response['data'] = $totals;
     $response['message'] = $message;
 } catch (\Exception $e) {
+    if ($pdo && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
     http_response_code($e->getCode() ?: 500);
     $response['message'] = $e->getMessage();
 }

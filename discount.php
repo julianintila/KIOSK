@@ -65,6 +65,8 @@
         const btnBack = document.getElementById('btnBack');
         const btnProceedToPayment = document.getElementById('btnProceedToPayment');
 
+        let oldDiscountCode = ''
+
         showTotals()
 
         function clearMessages() {
@@ -108,6 +110,7 @@
                     }
                     successMsg.textContent = data.message;
                     localStorage.setItem("totals", JSON.stringify(data.data));
+                    showTotals();
                 });
         }
 
@@ -136,6 +139,11 @@
             const discountCode = discountCodeInput.value.trim();
             if (!discountCode) return;
 
+            if (discountCode === oldDiscountCode) {
+                successMsg.textContent = 'Discount code already applied.';
+                return;
+            }
+
             const payload = {
                 Action: 'Discount',
                 ReferenceNo: referenceNo,
@@ -160,7 +168,7 @@
                     }
                     successMsg.textContent = data.message;
                     localStorage.setItem("totals", JSON.stringify(data.data));
-
+                    oldDiscountCode = discountCode;
                     showTotals();
                 });
         }
@@ -199,10 +207,6 @@
 
         btnBack.addEventListener('click', function() {
             clearMessages();
-
-            const name = nameInput.value.trim();
-            const idNumber = idNumberInput.value.trim();
-
             const payload = {
                 Action: 'NoDiscount',
                 ReferenceNo: referenceNo
