@@ -70,14 +70,13 @@
     <script>
         let categories = JSON.parse(localStorage.getItem("categories")) || [];
         let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const referenceNo = localStorage.getItem("referenceNo") || 0;
 
+        const referenceNo = localStorage.getItem("referenceNo") || 0;
         const btnBackToCart = document.getElementById("btn-back-to-cart");
+
         btnBackToCart.addEventListener("click", () => {
             window.location.href = "cart.php";
         })
-
-        console.log("initial cart:", cart);
 
         Handlebars.registerHelper("getCategoryImage", function(name) {
             const map = {
@@ -92,8 +91,6 @@
             return map[name.toLowerCase()] || "images/category/default.png";
         });
 
-
-        // Fetch from API
         fetch("api/items.php")
             .then((res) => res.json())
             .then((data) => {
@@ -197,7 +194,14 @@
                 qtySpan.textContent = tempQuantities[itemId] || 0;
 
                 decBtn.addEventListener("click", () => {
-                    const q = Math.max(0, (tempQuantities[itemId] || 0) - 1);
+                    let currentQty = tempQuantities[itemId] || 0;
+
+                    if (category.required && currentQty <= 1) {
+                        alert(`At least 1 item is required in ${category.name}.`);
+                        return; 
+                    }
+
+                    const q = Math.max(0, currentQty - 1);
                     tempQuantities[itemId] = q;
                     qtySpan.textContent = q;
                 });

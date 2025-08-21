@@ -4,7 +4,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>HIKINIKU</title>
   <script src="./js/handlebars.min.js"></script>
   <script src="js/script.js"></script>
@@ -17,43 +16,55 @@
 
 <body>
   <div class="container">
+    <div style="text-align: center; justify-content: center;margin-left: 450px; background-color: #00000000; position:absolute; top:50px;">
+      <img src="images/logo/namelogo.png" alt="Main Logo" style="width: 180px; height: 180px; filter: brightness(0.9);">
+    </div>
+
     <div id="category-container"></div>
   </div>
 
   <script id="category-template" type="text/x-handlebars-template">
-    <div
-    style="text-align: center; justify-content: center;margin-left: 450px; background-color: #00000000; position:absolute; top:50px;">
-    <img src="images/logo/namelogo.png" alt="Main Logo"
-      style="width: 180px; height: 180px; filter: brightness(0.9);">
-
-  </div>
     {{#if name}}
       <h1>{{name}}</h1>
     {{/if}}
+
     {{#if items.length}}
       <div class="item-container">
         <div class="items">
-          <div>
-            {{#each items}}
-              <div class="item" data-item-id="{{id}}">
-                <img src="images/menucategory/maindish.png" alt="" />
-                <div style="border: 2px solid white;width:100%; padding:20px; margin-left:100px;">
-                  <h4>{{extended_description}}</h4>
-                  <p class="price">{{price}}</p>
-                </div>
-                <div class="controls">
-                  <button class="decrease">-</button>
-                  <span class="quantity">0</span>
-                  <button class="increase">+</button>
-                </div>
-                <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
-                  <p>Freshly grilled burger patty (3 beef patties freshly grilled</p>
-                  <p> one after another) with freshly cooked rice and miso soup</p><br>
-                  <p> The set comes with one raw egg per set, & unilimited rice</p>
-                </div>
+          {{#each items}}
+            <div class="item" data-item-id="{{id}}">
+              <img src="images/menucategory/maindish.png" alt="" />
+              <div style="border: 2px solid white;width:100%; padding:20px; margin-left:100px;">
+                <h4>{{extended_description}}</h4>
+                <p class="price">{{price}}</p>
               </div>
-            {{/each}}
+              <div class="controls">
+                <button class="decrease">-</button>
+                <span class="quantity">0</span>
+                <button class="increase">+</button>
+              </div>
+            </div>
+          {{/each}}
+
+          {{#if descriptions.length}}
+            <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
+              {{#each descriptions}}
+                <p>{{name}}</p>
+              {{/each}}
+            </div>
+          {{/if}}
+
+          {{#if notes.length}}
+            <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
+              {{#each notes}}
+                <p>{{name}}</p>
+              {{/each}}
+            </div>
+          {{/if}}
+        </div>
+      </div>
     {{/if}}
+
     <div class="nav-buttons">
       {{#if previous_category_id}}
         <button onclick="navigateCategory('{{previous_category_id}}')">
@@ -70,9 +81,6 @@
         <button onclick="addToCart()">View Cart</button>
       {{/if}}
     </div>
-    </div>
-    </div>
-
   </script>
 
   <script>
@@ -127,12 +135,9 @@
       const itemEl = document.querySelector(`.item[data-item-id='${itemId}']`);
       if (itemEl) {
         itemEl.querySelector(".quantity").textContent = item.quantity;
-        // itemEl.querySelector(".total").textContent =
-        //   "Total: " + item.total.toFixed(2);
       }
 
       saveState();
-      // console.log("cart:", cart);
     }
 
     function renderCategory(index) {
@@ -154,13 +159,21 @@
         const item = categories[currentIndex].items.find((i) => i.id === itemId);
         if (item) {
           itemEl.querySelector(".quantity").textContent = item.quantity || 0;
-          // itemEl.querySelector(".total").textContent =
-          //   "Total: " + (item.total || 0).toFixed(2);
         }
       });
     }
 
     function navigateCategory(id) {
+      const currentCategory = categories[currentIndex];
+
+      if (currentCategory.required) {
+        const hasItemSelected = currentCategory.items.some(item => (item.quantity || 0) > 0);
+        if (!hasItemSelected) {
+          alert("You must select at least one item before proceeding.");
+          return;
+        }
+      }
+
       const newIndex = categories.findIndex((cat) => cat.id == id);
       if (newIndex !== -1) {
         currentIndex = newIndex;
@@ -206,11 +219,6 @@
         .catch((err) => console.error("error:", err));
     }
 
-    function nextValidation() {
-
-    }
-
-
     function backToIndex() {
       if (cart.length > 0) {
         showConfirmModal(function(confirmed) {
@@ -224,7 +232,6 @@
     }
 
     function showConfirmModal(callback) {
-
       const modalHTML = document.getElementById("confirm-modal-template").innerHTML;
       document.body.insertAdjacentHTML("beforeend", modalHTML);
 
@@ -248,11 +255,9 @@
     <div class="custom-modal-overlay" id="confirmOverlay">
       <div class="custom-modal">
         <div>
-
           <div style="text-align: center; margin-top: 50px;">
             <img src="images/icons/caution-sign.png" alt="Logo" style="max-width: 120px; height: auto;">
           </div>
-
 
           <div
             style="margin-top: 50px; font-size: 34px; display: flex; flex-direction: column; justify-content: center; text-align: center;">
@@ -260,14 +265,12 @@
             <p>Are you sure you want to leave?</p>
           </div>
 
-
           <div class="modal-buttons" style="text-align: center; margin-top: 80px;">
             <button id="confirmYes">Yes</button>
             <button id="confirmNo">No</button>
           </div>
         </div>
       </div>
-
     </div>
     <style>
       .custom-modal-overlay {
