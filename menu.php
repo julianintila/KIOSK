@@ -46,20 +46,22 @@
             </div>
           {{/each}}
 
-          {{#if descriptions.length}}
-            <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
-              {{#each descriptions}}
-                <p>{{name}}</p>
-              {{/each}}
-            </div>
-          {{/if}}
+          {{#if required}}
+            {{#if descriptions.length}}
+              <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
+                {{#each descriptions}}
+                  <p>{{name}}</p>
+                {{/each}}
+              </div>
+            {{/if}}
 
-          {{#if notes.length}}
-            <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
-              {{#each notes}}
-                <p>{{name}}</p>
-              {{/each}}
-            </div>
+            {{#if notes.length}}
+              <div style="text-align: center; margin-left: 10px; font-size:24px;width: 800px;">
+                {{#each notes}}
+                  <p>{{name}}</p>
+                {{/each}}
+              </div>
+            {{/if}}
           {{/if}}
         </div>
       </div>
