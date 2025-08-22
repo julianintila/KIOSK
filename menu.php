@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HIKINIKU</title>
   <script src="./js/handlebars.min.js"></script>
-  <script src="js/script.js"></script>
+  <script src="./js/script.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -86,11 +86,12 @@
   </script>
 
   <script>
-    const referenceNo = localStorage.getItem("referenceNo") || 0;
-    let categories = JSON.parse(localStorage.getItem("categories")) || [];
-    let currentIndex = parseInt(localStorage.getItem("currentIndex")) || 0;
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let required = JSON.parse(localStorage.getItem("required")) || [];
+    redirectToIndexIfNoReferenceNumber();
+
+
+    let categories = getCategories();
+    let currentIndex = getCurrentIndex();
+    let cart = getCart();
 
     fetch("api/items.php")
       .then((res) => res.json())
@@ -108,18 +109,20 @@
       .catch((err) => console.error("error:", err));
 
     function saveState() {
-      localStorage.setItem("categories", JSON.stringify(categories));
-      localStorage.setItem("currentIndex", currentIndex);
-      localStorage.setItem("cart", JSON.stringify(cart));
+      setCategories(categories);
+      setCurrentIndex(currentIndex)
+      setCart(cart)
     }
 
     function updateCartById(itemId, delta) {
       const category = categories[currentIndex];
       const item = category.items.find((i) => i.id === itemId);
+
       if (!item) return;
 
       item.quantity = (item.quantity || 0) + delta;
       if (item.quantity < 0) item.quantity = 0;
+
       item.total = item.quantity * item.price;
 
       const cartIndex = cart.findIndex((i) => i.id === itemId);
@@ -187,15 +190,12 @@
     function addToCart() {
       if (!cart.length) {
         console.warn("Cart is empty!");
-        return;
-      }
-      if (referenceNo === 0) {
-        console.warn("No reference number found!");
+        alert("Cart is empty!");
         return;
       }
 
       const body = {
-        ReferenceNo: referenceNo,
+        ReferenceNo: getReferenceNo(),
         cart: cart,
       };
 
@@ -214,8 +214,8 @@
             console.error("Failed to add to cart:", data.message);
             return;
           }
-          localStorage.setItem("totals", JSON.stringify(data.data));
 
+          setTotals(data.data);
           window.location.href = "cart.php";
         })
         .catch((err) => console.error("error:", err));

@@ -16,7 +16,7 @@
             <span id="subtotal"></span>
         </div>
         <div>
-            <span>Service Charge</span>
+            <span id="service-charge-label">Service Charge</span>
             <span id="service-charge"></span>
         </div>
         <div>
@@ -60,27 +60,26 @@
     <script src="./js/handlebars.min.js"></script>
 
     <script>
+        redirectToIndexIfNoReferenceNumber();
+
         Handlebars.registerHelper("currency", function(value) {
             return formatCurrency(value || 0);
         });
 
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        const referenceNo = localStorage.getItem("referenceNo") || 0;
-
+        let cart = getCart();
         const btnBackToMenu = document.getElementById("btn-back-to-menu");
         const btnNext = document.getElementById("btn-next");
 
-        btnBackToMenu.addEventListener("click", () => {
-            window.location.href = "categories.php";
-        })
+        btnBackToMenu.addEventListener("click", () => window.location.href = "categories.php")
+
         btnNext.addEventListener("click", async () => {
-            const totals = JSON.parse(localStorage.getItem("totals")) || {};
+            const totals = getTotals();
             const hasDiscount = totals.discount && totals.discount > 0;
 
             if (hasDiscount) {
                 const payload = {
                     Action: 'NoDiscount',
-                    ReferenceNo: referenceNo
+                    ReferenceNo: getReferenceNo()
                 }
                 const options = {
                     method: 'POST',
@@ -94,26 +93,16 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    localStorage.setItem("totals", JSON.stringify(data.data));
+                    setTotals(data.data);
                 }
             }
 
             const hasPrivilege = confirm("Do you have a privilege card?");
             window.location.href = hasPrivilege ? "discount.php" : "payment.php";
         })
+
         showTotals();
         renderCart();
-
-        function showTotals() {
-            let totals = JSON.parse(localStorage.getItem("totals")) || [];
-            const subtotalElement = document.getElementById("subtotal");
-            const serviceChargeElement = document.getElementById("service-charge");
-            const totalElement = document.getElementById("total");
-
-            subtotalElement.innerText = formatCurrency(totals.subtotal || 0);
-            serviceChargeElement.innerText = formatCurrency(totals.service_charge || 0);
-            totalElement.innerText = formatCurrency(totals.total || 0);
-        }
 
         function renderCart() {
             const container = document.getElementById("cart-container");
@@ -164,20 +153,15 @@
                 return item;
             }).filter(item => item.quantity > 0);
 
-            localStorage.setItem("cart", JSON.stringify(cart));
+            setCart(cart);
 
             await addToCart();
             await renderCart();
         }
 
         function addToCart() {
-            if (referenceNo === 0) {
-                console.warn("No reference number found!");
-                return;
-            }
-
             const body = {
-                ReferenceNo: referenceNo,
+                ReferenceNo: getReferenceNo(),
                 cart: cart,
             };
 
@@ -197,8 +181,7 @@
                         console.error("Failed to add to cart:", data.message);
                         return;
                     }
-                    localStorage.setItem("totals", JSON.stringify(data.data));
-
+                    setTotals(data.data);
                     showTotals();
                 })
                 .catch((err) => console.error("error:", err));

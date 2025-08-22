@@ -39,7 +39,7 @@
             <span id="discount_amount"></span>
         </div>
         <div>
-            <span>Service Charge</span>
+            <span id="service-charge-label">Service Charge</span>
             <span id="service-charge"></span>
         </div>
         <div>
@@ -53,7 +53,8 @@
     </div>
 
     <script>
-        const referenceNo = localStorage.getItem("referenceNo") || 0;
+        redirectToIndexIfNoReferenceNumber();
+
         const btnRequestDiscountCode = document.getElementById('btnRequestDiscountCode');
         const nameInput = document.getElementById('name');
         const idNumberInput = document.getElementById('id_number');
@@ -80,14 +81,9 @@
             const name = nameInput.value.trim();
             const idNumber = idNumberInput.value.trim();
 
-            if (referenceNo === 0) {
-                console.warn("No reference number found!");
-                return;
-            }
-
             const payload = {
                 Action: 'RequestDiscount',
-                ReferenceNo: referenceNo,
+                ReferenceNo: getReferenceNo(),
                 name: name,
                 id_number: idNumber,
             }
@@ -109,7 +105,7 @@
                         return;
                     }
                     successMsg.textContent = data.message;
-                    localStorage.setItem("totals", JSON.stringify(data.data));
+                    setTotals(data.data);
                     showTotals();
                 });
         }
@@ -146,7 +142,7 @@
 
             const payload = {
                 Action: 'Discount',
-                ReferenceNo: referenceNo,
+                ReferenceNo: getReferenceNo(),
                 discount_code: discountCode
             }
             const options = {
@@ -167,7 +163,7 @@
                         return;
                     }
                     successMsg.textContent = data.message;
-                    localStorage.setItem("totals", JSON.stringify(data.data));
+                    setTotals(data.data);
                     oldDiscountCode = discountCode;
                     showTotals();
                 });
@@ -185,7 +181,6 @@
             };
             return debounced;
         }
-
 
         const debouncedApplyDiscountCode = debounce(applyDiscountCode, 500);
 
@@ -207,9 +202,10 @@
 
         btnBack.addEventListener('click', function() {
             clearMessages();
+
             const payload = {
                 Action: 'NoDiscount',
-                ReferenceNo: referenceNo
+                ReferenceNo: getReferenceNo()
             }
             const options = {
                 method: 'POST',
@@ -224,7 +220,9 @@
                 .then(data => {
                     clearMessages();
                     if (!data.success) return;
-                    localStorage.setItem("totals", JSON.stringify(data.data));
+
+                    setTotals(data.data);
+
                     window.location.href = 'cart.php';
                 });
         });

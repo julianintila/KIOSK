@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-
+    <script src="./js/script.js"></script>
 </head>
 
 <body>
@@ -43,11 +43,7 @@
         const enterButton = document.getElementById("enterButton");
 
         enterButton.addEventListener("click", function() {
-            localStorage.removeItem("categories");
-            localStorage.removeItem("currentIndex");
-            localStorage.removeItem("cart");
-            localStorage.removeItem("totals");
-            localStorage.removeItem("referenceNo");
+            clearAll();
 
             fetch("api/generate_reference_no.php")
                 .then(response => response.json())
@@ -56,7 +52,7 @@
                         console.error("Failed to generate reference number:", data.message);
                         return;
                     }
-                    localStorage.setItem("referenceNo", data.data.referenceNo);
+                    setReferenceNo(data.data.referenceNo)
                     window.location.href = "menu.php";
                 })
                 .catch(error => console.error("Error generating reference number:", error));

@@ -5,125 +5,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mode of Payment</title>
+    <link rel="stylesheet" href="./dist/style.css">
     <script src="./js/script.js"></script>
-    <style>
-        #processingOverlay,
-        #errorOverlay,
-        #successOverlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: 9999;
-            text-align: center;
-            padding-top: 100px;
-        }
-    </style>
-
 </head>
 
-<body>
-    <div>
-        <h2>Mode of Payment</h2>
-        <div>
-            <div id="card">
-                Credit Card / Debit Card
+<body class="bg-black text-white font-sans text-3xl">
+    <div class="h-screen flex flex-col container mx-auto max-w-4xl">
+        <div class="h-[20%] flex items-center justify-center">
+            <img src="images/logo/namelogo.png" alt="Main Logo" class="h-44 w-auto">
+        </div>
+
+        <div id="payment_container" class="relative flex-1">
+            <div id="payment_section" class="flex flex-col h-full">
+                <div class="flex-1 overflow-auto">
+                    <div class="space-y-28 py-12">
+                        <h2 class="text-4xl font-medium text-center">Mode of Payment</h2>
+                        <p class="border-t-2 border-white w-full"></p>
+                        <div class="flex justify-evenly items-center">
+                            <div id="card" class="cursor-pointer flex flex-col items-center space-y-2">
+                                <p class="text-lg font-medium">Credit Card / Debit Card</p>
+                                <div class="border-2 border-white p-4 flex items-center justify-center w-64 h-64">
+                                    <img src="./images/payment/cc.png" class="max-w-full max-h-full object-contain" alt="cc">
+                                </div>
+                            </div>
+
+                            <div id="qrph" class="cursor-pointer flex flex-col items-center space-y-2">
+                                <p class="text-lg font-medium">QRPH</p>
+                                <div class="border-2 border-white p-4 flex items-center justify-center w-64 h-64">
+                                    <img src="./images/payment/qrph.png" class="max-w-full max-h-full object-contain" alt="qrph">
+                                </div>
+                            </div>
+                        </div>
+                        <p class="border-t-2 border-white w-full"></p>
+                    </div>
+                </div>
+                <div class="h-[30%] flex flex-col items-center justify-evenly space-y-14">
+                    <div class="w-full space-y-5">
+                        <div class="flex justify-between items-center">
+                            <span>Subtotal</span>
+                            <span id="subtotal"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Discount</span>
+                            <span id="discount_amount"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span id="service-charge-label">Service Charge</span>
+                            <span id="service-charge"></span>
+                        </div>
+                    </div>
+                    <div class="w-full flex justify-between items-center">
+                        <span>Total</span>
+                        <span id="total"></span>
+                    </div>
+                </div>
+
+                <div class="h-[15%] flex justify-center items-center p-12">
+                    <button id="btnBack" class="border-2 border-white px-9 py-4 cursor-pointer">Back</button>
+                </div>
             </div>
-            <div id="qrph">
-                QRPH
+
+            <div id="processingOverlay" class="hidden flex-col h-full">
+                <div class="flex-1 flex flex-col items-center justify-center space-y-12">
+                    <div class="space-y-5 flex flex-col items-center justify-between">
+                        <h4 class="text-4xl font-medium"> Kindly process your payment using the card terminal.</h4>
+                        <p class="text-3xl">Please do not close this window.</p>
+                    </div>
+                    <p class="border-t-2 border-white w-full"></p>
+                    <div class="flex justify-between items-center w-full text-4xl font-medium">
+                        <span>Total</span>
+                        <span id="payment_total"></span>
+                    </div>
+                </div>
+                <div class="h-[40%]"> </div>
+            </div>
+
+            <div id="successOverlay" class="hidden flex-col h-full">
+                <div class="flex-1 flex flex-col items-center justify-center space-y-10">
+                    <h4 class="text-4xl font-medium">Please get your order ticket and official receipt</h4>
+                    <h4 class="text-4xl">Thank you</h4>
+                </div>
+
+                <div class="h-[40%]"> </div>
+            </div>
+
+            <div id="errorOverlay" class="hidden flex-col h-full items-center justify-center">
+                <div class="flex-1 flex flex-col items-center justify-center space-y-10">
+                    <h5 class="text-4xl font-medium">Card Terminal Error</h5>
+                    <h4 class="text-4xl"></h4>
+                </div>
+
+                <div class="h-[40%]"> </div>
             </div>
         </div>
 
-        <div>
-            <div>
-                <span>Subtotal</span>
-                <span id="subtotal"></span>
-            </div>
-            <div>
-                <span>Discount</span>
-                <span id="discount_amount"></span>
-            </div>
-            <div>
-                <span>Service Charge</span>
-                <span id="service-charge"></span>
-            </div>
-            <div>
-                <span>Total</span>
-                <span id="total"></span>
-            </div>
-        </div>
-        <div>
-            <button id="btnBack">Back</button>
-        </div>
-    </div>
-
-    <div id="processingOverlay">
-        <h4> Kindly process your payment using the card terminal.</h4>
-        <p>Please do not close this window.</p>
-        <div>
-            <span>Total</span>
-            <span id="_total"></span>
-        </div>
-    </div>
-
-    <div id="successOverlay">
-        <h4>Please get your order ticket and official receipt</h4>
-        <h4>Thank you</h4>
-    </div>
-
-    <div id="errorOverlay">
-        <h4></h4>
     </div>
 
     <script>
-        // initialize
-        const btnBack = document.getElementById("btnBack");
-        const referenceNo = localStorage.getItem("referenceNo") || 0;
-        const card = document.getElementById("card");
-        const qrph = document.getElementById("qrph");
+        redirectToIndexIfNoReferenceNumber();
 
-        const processingOverlay = document.getElementById("processingOverlay")
-        const successOverlay = document.getElementById("successOverlay")
-        const errorOverlay = document.getElementById("errorOverlay")
-
-        const totals = JSON.parse(localStorage.getItem("totals")) || [];
-        const _totalElement = document.getElementById("_total");
-
-        _totalElement.innerText = formatCurrency(totals.total || 0);
-
-        showTotals();
-
+        const totals = getTotals();
         if (totals.total === 0) {
             sendPayment(null, "ZeroPayment");
         }
 
-        // event listeners
-        card.addEventListener("click", (e) => {
-            sendPayment(e, "CreditDebit");
-        })
+        const btnBack = document.getElementById("btnBack");
+        btnBack.addEventListener("click", () => window.location.href = "cart.php")
 
-        qrph.addEventListener("click", (e) => {
-            sendPayment(e, "GenericMerchantQR-qr:qrph");
-        })
+        const card = document.getElementById("card");
+        const qrph = document.getElementById("qrph");
 
-        btnBack.addEventListener("click", () => {
-            window.location.href = "cart.php";
-        })
+        const payment_section = document.getElementById("payment_section");
+        const processingOverlay = document.getElementById("processingOverlay")
+        const successOverlay = document.getElementById("successOverlay")
+        const errorOverlay = document.getElementById("errorOverlay")
 
         let paymentChecker = null;
         let isChecking = false;
 
+        showTotals();
+
+        card.addEventListener("click", (e) => sendPayment(e, "CreditDebit"))
+        qrph.addEventListener("click", (e) => sendPayment(e, "GenericMerchantQR-qr:qrph"))
+
         function sendPayment(event, type) {
             if (event) event.preventDefault();
-            const referenceNo = localStorage.getItem("referenceNo") || 0;
-            const totals = JSON.parse(localStorage.getItem("totals")) || [];
+
+            const totals = getTotals();
+
+            payment_section.classList.add("hidden");
 
             const body = {
                 Status: "pay",
-                ReferenceNo: referenceNo,
+                ReferenceNo: getReferenceNo(),
                 PaymentType: type,
                 ...totals,
             };
@@ -145,10 +159,7 @@
                         return;
                     }
 
-                    // show processing overlay
-                    document.getElementById("processingOverlay").style.display = "block";
-
-                    // start the first check
+                    processingOverlay.classList.replace("hidden", "flex");
                     paymentChecker = setTimeout(checkPaymentStatus, 1000);
                 })
                 .catch((err) => console.error("error:", err));
@@ -159,16 +170,9 @@
             if (isChecking) return;
             isChecking = true;
 
-            const referenceNo = localStorage.getItem("referenceNo") || 0;
-            if (!referenceNo) {
-                console.error("No reference number found!");
-                isChecking = false;
-                return;
-            }
-
             const payload = {
                 Status: "checking",
-                ReferenceNo: referenceNo,
+                ReferenceNo: getReferenceNo(),
             };
             const options = {
                 method: 'POST',
@@ -181,9 +185,9 @@
             fetch('api/payment_gateway.php', options)
                 .then(res => res.json())
                 .then(res => {
-                    const status = res.status.toLowerCase();
-
                     console.log(res);
+
+                    const status = res.status.toLowerCase();
 
                     if (!res.success) {
                         console.error(res.message);
@@ -193,29 +197,30 @@
                     if (status === "success") {
                         clearTimeout(paymentChecker);
                         console.log("✅ Payment success!");
-                        processingOverlay.style.display = "none";
-                        successOverlay.style.display = "block";
+
+                        processingOverlay.classList.add("hidden");
+                        successOverlay.classList.replace("hidden", "flex");
 
                         setTimeout(() => {
+                            clearAll()
                             window.location.href = "index.php";
-                        }, 3000);
+                        }, 1000 * 60 * 1);
                         return;
                     }
 
                     if (status === "error") {
                         clearTimeout(paymentChecker);
                         console.log("❌ Payment failed.");
-                        processingOverlay.style.display = "none";
 
-                        // show error overlay with message
                         errorOverlay.querySelector("h4").innerText = res.message || "Payment failed.";
-                        errorOverlay.style.display = "block";
+
+                        processingOverlay.classList.add("hidden");
+                        errorOverlay.classList.replace("hidden", "flex");
 
                         setTimeout(() => {
-                            errorOverlay.style.display = "none";
-                            // return to original UI (mode of payment screen)
-                            document.querySelector("div").style.display = "block";
-                        }, 3000);
+                            errorOverlay.classList.add("hidden");
+                            payment_section.classList.replace("hidden", "flex");
+                        }, 1000 * 10);
                         return;
                     }
 
