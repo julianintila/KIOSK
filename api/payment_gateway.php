@@ -5,8 +5,16 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
+$response = [
+    'success' => false,
+    'status' => 'pending',
+    'message' => 'An error occurred',
+    'data' => []
+];
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
+    echo json_encode($response);
     exit();
 }
 
@@ -25,10 +33,14 @@ try {
 
     $referenceNo = $data['ReferenceNo'];
     $status = $data['Status'];
+    $status = strtolower($status);
+
+    $pdo->beginTransaction();
 
     if ($status == 'pay') {
         if (empty($data['PaymentType'])) throw new Exception('PaymentType is required');
         $paymentType = $data['PaymentType'];
+
         // CreditDebit
         // GenericMerchantQR-qr:qrph
         // ZeroPayment
@@ -57,7 +69,7 @@ try {
         $result = fetch($sql, $params, $pdo);
 
         if ($result) {
-            $sql = "UPDATE KIOSK_TransactionHeader SET CustomerName = :CustomerName, IDNumber = :IDNumber, SubTotal = :subtotal, ServiceCharge = :service_charge, TotalDue = :total, PaymentType = :paymentType WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
+            $sql = "UPDATE KIOSK_TransactionHeader SET Datetime = GETDATE(), CustomerName = :CustomerName, IDNumber = :IDNumber, SubTotal = :subtotal, ServiceCharge = :service_charge, TotalDue = :total, PaymentType = :paymentType WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ':CustomerName' => $CustomerName,
@@ -69,24 +81,24 @@ try {
                 ':total' => $total,
                 ':paymentType' => $paymentType
             ]);
+        } else {
+            $sql = "INSERT INTO [KIOSK_TransactionHeader] 
+                ([KioskRegNo], [ReferenceNo], [CustomerName], [IDNumber], [SubTotal], [ServiceCharge], [TotalDue], [PaymentType], [DateTime])
+                VALUES
+                (:kioskRegNo, :referenceNo, :CustomerName, :IDNumber, :subtotal, :service_charge, :total, :paymentType, GETDATE())
+            ";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ':kioskRegNo' => $kioskRegNo,
+                ':referenceNo' => $referenceNo,
+                ':subtotal' => $subtotal,
+                ':service_charge' => $service_charge,
+                ':total' => $total,
+                ':paymentType' => $paymentType,
+                ':CustomerName' => $CustomerName,
+                ':IDNumber' => $IDNumber
+            ]);
         }
-
-        $sql = "INSERT INTO [KIOSK_TransactionHeader] 
-            ([KioskRegNo], [ReferenceNo], [CustomerName], [IDNumber], [SubTotal], [ServiceCharge], [TotalDue], [PaymentType], [DateTime])
-            VALUES
-            (:kioskRegNo, :referenceNo, :CustomerName, :IDNumber, :subtotal, :service_charge, :total, :paymentType, GETDATE())
-        ";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            ':kioskRegNo' => $kioskRegNo,
-            ':referenceNo' => $referenceNo,
-            ':subtotal' => $subtotal,
-            ':service_charge' => $service_charge,
-            ':total' => $total,
-            ':paymentType' => $paymentType,
-            ':CustomerName' => $CustomerName,
-            ':IDNumber' => $IDNumber
-        ]);
 
         $sql = "select * from KIOSK_TransactionStatus where ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
         $params = [
@@ -111,6 +123,17 @@ try {
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':kioskRegNo' => $kioskRegNo, ':referenceNo' => $referenceNo]);
         }
+
+        $response['success'] = true;
+        $response['status'] = 'pending';
+        $response['message'] = 'Transaction is being processed. Please wait...';
+    } elseif ($status === 'cancel') {
+        $sql = "DELETE FROM KIOSK_TransactionStatus WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':referenceNo' => $referenceNo, ':kioskRegNo' => $kioskRegNo]);
+        $response['success'] = true;
+        $response['status'] = 'cancelled';
+        $response['message'] = 'Transaction has been cancelled';
     } else {
         $sql = "SELECT * FROM KIOSK_TransactionStatus WHERE ReferenceNo = :referenceNo and KioskRegNo = :kioskRegNo";
         $params = [
@@ -123,7 +146,7 @@ try {
             $response['status'] = 'error';
             $response['message'] = 'Transaction not found';
         } else {
-            $status = $result->Status;
+            $status = strtolower($result->Status);
 
             if ($status === 'pending') {
                 $response['status'] = $status;
@@ -133,19 +156,22 @@ try {
                 $response['message'] = 'Your transaction has been completed successfully.';
             } else {
                 $response['status'] = 'error';
-                $response['message'] = $result->Status;
+                $response['message'] = str_replace("Error : ", "", $result->Status);
             }
         }
+        $response['success'] = true;
     }
 
+    $pdo->commit();
+
     http_response_code(200);
-    echo json_encode($response);
 } catch (\Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => $e->getMessage(),
-        'file' => $e->getFile(),
-        'line' => $e->getLine()
-    ]);
-    exit();
+    if ($pdo && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    http_response_code($e->getCode() ?: 500);
+    $response['success'] = false;
+    $response['message'] = $e->getMessage();
 }
+echo json_encode($response);
+exit();

@@ -40,13 +40,26 @@
     </div>
 
     <script>
-        document.getElementById("enterButton").addEventListener("click", function() {
+        const enterButton = document.getElementById("enterButton");
+
+        enterButton.addEventListener("click", function() {
             localStorage.removeItem("categories");
             localStorage.removeItem("currentIndex");
             localStorage.removeItem("cart");
             localStorage.removeItem("totals");
+            localStorage.removeItem("referenceNo");
 
-            window.location.href = "menu.php";
+            fetch("api/generate_reference_no.php")
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error("Failed to generate reference number:", data.message);
+                        return;
+                    }
+                    localStorage.setItem("referenceNo", data.data.referenceNo);
+                    window.location.href = "menu.php";
+                })
+                .catch(error => console.error("Error generating reference number:", error));
         });
     </script>
 </body>
