@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart</title>
     <link rel="stylesheet" href="./dist/style.css">
+    <link rel="stylesheet" href="css/cart.css">
     <script src="./js/script.js"></script>
 </head>
 
@@ -54,8 +55,24 @@
             <!-- Buttons -->
             <div class="flex-none flex justify-evenly items-center px-6 py-12">
                 <button id="btn-start-over" class="border-2 border-white px-9 py-4 cursor-pointer">Start Over</button>
-                <button id="btn-back-to-menu" class="border-2 border-white px-9 py-4 cursor-pointer">Back to Menu</button>
+                <button id="btn-back-to-menu" class="border-2 border-white px-9 py-4 cursor-pointer">Back to
+                    Menu</button>
                 <button id="btn-next" class="border-2 border-white px-9 py-4 cursor-pointer">Next</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div id="privilegeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1>Do you have a privilege card?</h1>
+                <p> (Senior Citizen, PWD card, etc.)</p>
+                <div class="modal-buttons">
+                    <button id="btnYes" class="btn btn-yes">Yes</button>
+                    <button id="btnNo" class="btn btn-no">No</button>
+                </div>
             </div>
         </div>
     </div>
@@ -89,7 +106,7 @@
         let cart = getCart();
         const btnStartOver = document.getElementById("btn-start-over");
         const btnBackToMenu = document.getElementById("btn-back-to-menu");
-        const btnNext = document.getElementById("btn-next");
+
 
         btnStartOver.addEventListener("click", () => {
             if (confirm("Are you sure you want to start over?")) {
@@ -100,10 +117,38 @@
 
         btnBackToMenu.addEventListener("click", () => window.location.href = "categories.php")
 
+        const btnNext = document.getElementById("btn-next");
+        const modal = document.getElementById("privilegeModal");
+        const btnYes = document.getElementById("btnYes");
+        const btnNo = document.getElementById("btnNo");
+
         btnNext.addEventListener("click", async () => {
-            const hasPrivilege = confirm("Do you have a privilege card?");
-            window.location.href = hasPrivilege ? "discount.php" : "payment.php";
-        })
+            modal.style.display = "block";
+        });
+
+        btnYes.addEventListener("click", () => {
+            modal.style.display = "none";
+            window.location.href = "discount.php";
+        });
+
+        btnNo.addEventListener("click", () => {
+            modal.style.display = "none";
+            window.location.href = "payment.php";
+        });
+
+
+        window.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modal.style.display === "block") {
+                modal.style.display = "none";
+            }
+        });
 
         showTotals();
         renderCart();
@@ -145,7 +190,8 @@
                 let newQty = item.quantity + change;
                 const currentCategory = categories.find(c => c.items.some(i => i.id === id));
                 const isRequired = currentCategory?.required;
-                const otherItemsSelected = currentCategory?.items.some(i => i.id !== id && (i.quantity || 0) > 0);
+                const otherItemsSelected = currentCategory?.items.some(i => i.id !== id && (i.quantity || 0) >
+                    0);
 
                 if (newQty <= 0) {
                     if (isRequired && !otherItemsSelected) {

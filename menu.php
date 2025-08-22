@@ -11,13 +11,57 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@300&display=swap" rel="stylesheet">
+  <style>
+    .custom-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
 
+    .custom-modal {
+      background: black;
+      padding: 20px;
+      border-radius: 8px;
+      width: 800px;
+      border: 2px solid white;
+      text-align: center;
+      height: 600px;
+    }
+
+    .modal-buttons {
+      margin-top: 150px;
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .modal-buttons button {
+      margin: 0 5px;
+      padding: 6px 12px;
+      background: black;
+      color: white;
+      border-radius: 20px;
+      width: 200px;
+      height: 70px;
+      font-size: 24px;
+      border: 2px solid white;
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
-    <div style="text-align: center; justify-content: center;margin-left: 450px; background-color: #00000000; position:absolute; top:50px;">
-      <img src="images/logo/namelogo.png" alt="Main Logo" style="width: 180px; height: 180px; filter: brightness(0.9);">
+    <div
+      style="text-align: center; justify-content: center;margin-left: 450px; background-color: #00000000; position:absolute; top:50px;">
+      <img src="images/logo/namelogo.png" alt="Main Logo"
+        style="width: 180px; height: 180px; filter: brightness(0.9);">
     </div>
 
     <div id="category-container"></div>
@@ -33,7 +77,8 @@
         <div class="items">
           {{#each items}}
             <div class="item" data-item-id="{{id}}">
-              <img src="images/menucategory/maindish.png" alt="" />
+              <img src="images/menucategory/{{description}}.png" alt="{{name}}"
+                onerror="this.onerror=null; this.src='images/category/default.png';">
               <div style="border: 2px solid white;width:100%; padding:20px; margin-left:100px;">
                 <h4>{{extended_description}}</h4>
                 <p class="price">{{price}}</p>
@@ -274,49 +319,6 @@
         </div>
       </div>
     </div>
-    <style>
-      .custom-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-      }
-
-      .custom-modal {
-        background: black;
-        padding: 20px;
-        border-radius: 8px;
-        width: 800px;
-        border: 2px solid white;
-        text-align: center;
-        height: 600px;
-      }
-
-      .modal-buttons {
-        margin-top: 150px;
-        display: flex;
-        gap: 30px;
-        justify-content: center;
-      }
-
-      .modal-buttons button {
-        margin: 0 5px;
-        padding: 6px 12px;
-        background: black;
-        color: white;
-        border-radius: 20px;
-        width: 200px;
-        height: 70px;
-        font-size: 24px;
-        border: 2px solid white;
-      }
-    </style>
   </script>
 
 </body>

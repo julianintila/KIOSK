@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Discount Requests</title>
   <script src="./js/handlebars.min.js"></script>
+  <link rel="stylesheet" href="style.css">
   <style>
     #discountCodeOverlay {
       display: none;

@@ -4,7 +4,7 @@ return array(
     'db_server' => '.',
     'db_name' => 'HIKINIKU',
     'db_user' => 'sa',
-    'db_pass' => 'psc',
+    'db_pass' => 'PSC@dmin',
     'printer_names' =>
     array(
         0 => 'POS80',

@@ -13,8 +13,8 @@
 
 <body>
     <div class="header">
-        <img src="images/logo/namelogo.png" style="height: 150px;" alt="">
-        <button id="btn-back-to-cart">Back to Cart</button>
+        <img src="images/logo/namelogo.png" style="height: 200px; margin-left:200px;" alt="">
+        <button id="btn-back-to-cart" class="backToCart">Back to Cart</button>
     </div>
 
     <div class="container" id="category-container"></div>
@@ -23,7 +23,8 @@
             {{#unless (eq name "HIKINIKU TO COME Set")}}
                 <div class="menu-section category" data-category-id="{{id}}">
                     <div class="section-icon">
-                        <img src="{{getCategoryImage name}}" alt="{{name}}">
+                        <img src="images/category/{{id}}.png" alt="{{name}}"
+                            onerror="this.onerror=null; this.src='images/category/default.png';">
                     </div>
                     <div class="section-content">
                         <div class="section-header">{{name}}</div>
@@ -41,27 +42,36 @@
 
 
     <script id="item-template" type="text/x-handlebars-template">
+        <h2 class="category-title">{{name}}</h2>
         <div class="category-detail">
             <div class="back-controls">
-                <button id="back-btn" class="control-btn">← Back to Categories</button>
-                <button id="back-add-to-cart" class="control-btn cart-btn">Add to Cart</button>
+                <button id="back-btn" class="control-btn">×</button>
             </div>
-            <h2 class="category-title">{{name}}</h2>
-            {{#each items}}
-            <div class="menu-item item-detail" data-item-id="{{id}}">
-                <div class="item-icon"></div>
-                <div class="item-details">
-                    <div class="item-name">{{name}}</div>
-                    <div class="item-description">{{extended_description}}</div>
-                    <div class="item-price">${{price}}</div>
-                </div>
-                <div class="quantity-controls">
-                    <button class="quantity-btn decrease">-</button>
-                    <span class="quantity">0</span>
-                    <button class="quantity-btn increase">+</button>
+            
+            <div class="menu-items-container">
+                <div class="menu-items-grid">
+                    {{#each items}}
+                    <div class="menu-item item-detail" data-item-id="{{id}}">
+                        <div class="item-icon">
+                             <img src="images/menucategory/{{description}}.png" alt="{{name}}" style="height: 200px;width:200px"
+                            onerror="this.onerror=null; this.src='images/menucategory/default.png';">
+                        </div>
+                        <div class="item-details">
+                            <div class="item-name">{{name}}</div>
+                            <div class="item-description">{{extended_description}}</div>
+                            <div class="item-price">${{price}}</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn decrease">-</button>
+                            <span class="quantity">0</span>
+                            <button class="quantity-btn increase">+</button>
+                        </div>
+                    </div>
+                    {{/each}}
                 </div>
             </div>
-            {{/each}}
+            
+            <button id="back-add-to-cart" class="control-btn cart-btn">Add to Cart</button>
         </div>
     </script>
 
@@ -78,18 +88,7 @@
             window.location.href = "cart.php";
         })
 
-        Handlebars.registerHelper("getCategoryImage", function(name) {
-            const map = {
-                "hikiniku to come set": "images/category/maindish.png",
-                "extras": "images/category/extras.png",
-                "side dishes": "images/category/potsalad.png",
-                "non-alcoholic": "images/category/gingerale.png",
-                "alcohol": "images/category/beer.png",
-                "shirts": "images/category/shirt.png"
-            };
 
-            return map[name.toLowerCase()] || "images/category/default.png";
-        });
 
         fetch("api/items.php")
             .then((res) => res.json())
@@ -198,7 +197,7 @@
 
                     if (category.required && currentQty <= 1) {
                         alert(`At least 1 item is required in ${category.name}.`);
-                        return; 
+                        return;
                     }
 
                     const q = Math.max(0, currentQty - 1);
