@@ -15,6 +15,10 @@
             <span>Subtotal</span>
             <span id="subtotal"></span>
         </div>
+        <div class="flex justify-between items-center">
+            <span>Discount</span>
+            <span id="discount_amount"></span>
+        </div>
         <div>
             <span id="service-charge-label">Service Charge</span>
             <span id="service-charge"></span>
@@ -73,30 +77,6 @@
         btnBackToMenu.addEventListener("click", () => window.location.href = "categories.php")
 
         btnNext.addEventListener("click", async () => {
-            const totals = getTotals();
-            const hasDiscount = totals.discount && totals.discount > 0;
-
-            if (hasDiscount) {
-                const payload = {
-                    Action: 'NoDiscount',
-                    ReferenceNo: getReferenceNo()
-                }
-                const options = {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                }
-
-                const res = await fetch('api/request_discount.php', options);
-                const data = await res.json();
-
-                if (data.success) {
-                    setTotals(data.data);
-                }
-            }
-
             const hasPrivilege = confirm("Do you have a privilege card?");
             window.location.href = hasPrivilege ? "discount.php" : "payment.php";
         })

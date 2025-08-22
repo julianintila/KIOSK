@@ -41,9 +41,25 @@ try {
     $pdo->beginTransaction();
 
     if ($action === 'RequestDiscount') {
-        if (!$name) throw new Exception('Enter name of the card holder', 406);
-        if (!$id_number) throw new Exception('Enter discount ID number', 406);
-        if (!preg_match('/^\d+$/', $id_number)) throw new Exception('ID number must be numeric only', 406);
+        $hasError = false;
+
+        if (!$name) {
+            $response['data'][]['name'] = 'Enter name of the card holder';
+            $hasError = true;
+        }
+        if (!$id_number) {
+            $response['data'][]['id_number'] = 'Enter discount ID number';
+            $hasError = true;
+        } elseif (!preg_match('/^\d+$/', $id_number)) {
+            $response['data'][]['id_number'] = 'ID number must be numeric only';
+            $hasError = true;
+        }
+
+
+        if ($hasError) {
+            http_response_code(406);
+            throw new Exception('Invalid input data');
+        }
 
         $sql = "select * from KIOSK_DiscountRequests WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'pending' AND discount_id = :id_number AND name = :name";
         $params = [
@@ -82,7 +98,10 @@ try {
         $message = 'Discount request sent. Awaiting approval.';
         http_response_code(201);
     } elseif ($action === 'Discount') {
-        if (!$discount_code) throw new Exception('discount code is required', 406);
+        if (!$discount_code) {
+            $response['data'][]['discount_code'] = 'Discount code is required.';
+            throw new Exception('discount code is required', 406);
+        }
 
         $sql = "SELECT * FROM KIOSK_DiscountRequests WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'accepted' AND discount_code = :discount_code";
         $params = [
@@ -92,7 +111,10 @@ try {
         ];
         $result = fetch($sql, $params, $pdo);
 
-        if (!$result) throw new Exception('Discount code is invalid.', 406);
+        if (!$result) {
+            $response['data'][]['discount_code'] = 'Discount code is invalid or expired.';
+            throw new Exception('Discount code is invalid or expired.', 406);
+        }
 
         $sql = "UPDATE KIOSK_DiscountRequests SET status = 'used', used_at = GETDATE() WHERE ReferenceNo = :referenceNo and register_no = :kioskRegNo AND status = 'accepted' AND discount_code = :discount_code";
         $stmt = $pdo->prepare($sql);

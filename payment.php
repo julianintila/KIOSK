@@ -68,8 +68,8 @@
             <div id="processingOverlay" class="hidden flex-col h-full">
                 <div class="flex-1 flex flex-col items-center justify-center space-y-12">
                     <div class="space-y-5 flex flex-col items-center justify-between">
-                        <h4 class="text-4xl font-medium"> Kindly process your payment using the card terminal.</h4>
-                        <p class="text-3xl">Please do not close this window.</p>
+                        <h4 class="text-4xl font-medium text-center">Kindly process your payment</h4>
+                        <h4 class="text-4xl font-medium text-center">using the card terminal.</h4>
                     </div>
                     <p class="border-t-2 border-white w-full"></p>
                     <div class="flex justify-between items-center w-full text-4xl font-medium">
@@ -83,7 +83,8 @@
             <div id="successOverlay" class="hidden flex-col h-full">
                 <div class="flex-1 flex flex-col items-center justify-center space-y-10">
                     <h4 class="text-4xl font-medium">Please get your order ticket and official receipt</h4>
-                    <h4 class="text-4xl">Thank you</h4>
+                    <h4 class="text-4xl">Thank you!</h4>
+                    <p class="border-t-2 border-white w-full"></p>
                 </div>
 
                 <div class="h-[40%]"> </div>
@@ -110,7 +111,40 @@
         }
 
         const btnBack = document.getElementById("btnBack");
-        btnBack.addEventListener("click", () => window.location.href = "cart.php")
+        btnBack.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            const totals = getTotals();
+            const hasDiscount = totals.discount && totals.discount > 0;
+
+            if (hasDiscount) {
+                const message = "Are you sure you want to go back to the cart?\n⚠️ Any applied discount will be removed.";
+                if (!confirm(message)) return;
+
+                const payload = {
+                    Action: 'NoDiscount',
+                    ReferenceNo: getReferenceNo()
+                }
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                }
+
+                fetch('api/request_discount.php', options)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.success) return;
+                        setTotals(data.data);
+                        window.location.href = 'cart.php';
+                    })
+
+            } else {
+                window.location.href = 'cart.php';
+            }
+        })
 
         const card = document.getElementById("card");
         const qrph = document.getElementById("qrph");
@@ -125,8 +159,8 @@
 
         showTotals();
 
-        card.addEventListener("click", (e) => sendPayment(e, "CreditDebit"))
-        qrph.addEventListener("click", (e) => sendPayment(e, "GenericMerchantQR-qr:qrph"))
+        card.addEventListener("click", (e) => sendPayment(e, "CreditDebit"));
+        qrph.addEventListener("click", (e) => sendPayment(e, "GenericMerchantQR-qr:qrph"));
 
         function sendPayment(event, type) {
             if (event) event.preventDefault();
