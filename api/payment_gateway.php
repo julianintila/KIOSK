@@ -41,9 +41,6 @@ try {
         if (empty($data['PaymentType'])) throw new Exception('PaymentType is required');
         $paymentType = $data['PaymentType'];
 
-        // CreditDebit
-        // GenericMerchantQR-qr:qrph
-        // ZeroPayment
         $subtotal = $data['subtotal'] ?? 0;
         $service_charge = $data['service_charge'] ?? 0;
         $total = $data['total'] ?? 0;
@@ -156,7 +153,7 @@ try {
                 $response['message'] = 'Your transaction has been completed successfully.';
             } else {
                 $response['status'] = 'error';
-                $response['message'] = str_replace("Error : ", "", $result->Status);
+                $response['message'] = str_ireplace("Error : ", "", $result->Status);
             }
         }
         $response['success'] = true;
