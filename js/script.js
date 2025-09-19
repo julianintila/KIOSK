@@ -115,6 +115,19 @@ function clearReferenceNo() {
   localStorage.removeItem("referenceNo");
 }
 
+// kioskRegNo
+function getKioskRegNo() {
+  return localStorage.getItem("kioskRegNo") || "";
+}
+
+function setKioskRegNo(kioskRegNo) {
+  localStorage.setItem("kioskRegNo", kioskRegNo);
+}
+
+function clearKioskRegNo() {
+  localStorage.removeItem("kioskRegNo");
+}
+
 function redirectToIndexIfNoReferenceNumber() {
   const referenceNo = getReferenceNo();
 

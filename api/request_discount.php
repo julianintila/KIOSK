@@ -137,9 +137,7 @@ try {
         $reason = fetch($sql, $params, $pdo);
         if (!$reason) throw new Exception('Invalid discount type.', 406);
 
-        $message = $reason->Description
-            ? $reason->Description . ' has been successfully applied.'
-            : 'Discount has been successfully applied.';
+        $message = 'Discount applied!';
 
         http_response_code(200);
     } else {

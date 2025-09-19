@@ -7,6 +7,20 @@
     <title>Mode of Payment</title>
     <link rel="stylesheet" href="./dist/style.css">
     <script src="./js/script.js"></script>
+    <style>
+        @font-face {
+            font-family: 'iowan_old_stylebold';
+            src: url('2131-font-webfont.woff2') format('woff2'),
+                url('2131-font-webfont.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+
+        }
+
+        * {
+            font-family: 'iowan_old_stylebold', serif;
+        }
+    </style>
 </head>
 
 <body class="bg-black text-white font-sans text-3xl">
@@ -25,14 +39,16 @@
                             <div id="card" class="cursor-pointer flex flex-col items-center space-y-2">
                                 <p class="text-lg font-medium">Credit Card / Debit Card</p>
                                 <div class="border-2 border-white p-4 flex items-center justify-center w-64 h-64">
-                                    <img src="./images/payment/cc.png" class="max-w-full max-h-full object-contain" alt="cc">
+                                    <img src="./images/payment/cc.png" class="max-w-full max-h-full object-contain"
+                                        alt="cc">
                                 </div>
                             </div>
 
                             <div id="qrph" class="cursor-pointer flex flex-col items-center space-y-2">
                                 <p class="text-lg font-medium">QRPH</p>
                                 <div class="border-2 border-white p-4 flex items-center justify-center w-64 h-64">
-                                    <img src="./images/payment/qrph.png" class="max-w-full max-h-full object-contain" alt="qrph">
+                                    <img src="./images/payment/qrph.png" class="max-w-full max-h-full object-contain"
+                                        alt="qrph">
                                 </div>
                             </div>
                         </div>
@@ -118,7 +134,8 @@
             const hasDiscount = totals.discount && totals.discount > 0;
 
             if (hasDiscount) {
-                const message = "Are you sure you want to go back to the cart?\n⚠️ Any applied discount will be removed.";
+                const message =
+                    "Are you sure you want to go back to the cart?\n⚠️ Any applied discount will be removed.";
                 if (!confirm(message)) return;
 
                 const payload = {
@@ -232,6 +249,25 @@
                         clearTimeout(paymentChecker);
                         console.log("✅ Payment success!");
 
+
+                        fetch('api/print_receipt_endpoint.php', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    ReferenceNo: getReferenceNo(),
+                                    KioskRegNo: getKioskRegNo()
+                                })
+                            }).then(res => res.json())
+                            .then(data => {
+                                if (!data.success) {
+                                    console.error('Failed to generate receipt:', data.message);
+                                    return;
+                                }
+
+                            })
+                            .catch(err => console.error('Error generating receipt:', err));
                         processingOverlay.classList.add("hidden");
                         successOverlay.classList.replace("hidden", "flex");
 

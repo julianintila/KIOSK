@@ -7,7 +7,21 @@
     <title>HIKINIKU TO COME</title>
     <link rel="stylesheet" href="css/categories.css">
     <style>
+        @font-face {
+            font-family: 'iowan_old_stylebold';
+            src: url('2131-font-webfont.woff2') format('woff2'),
+                url('2131-font-webfont.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
 
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'iowan_old_stylebold', serif;
+        }
     </style>
 </head>
 

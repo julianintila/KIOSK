@@ -1,7 +1,17 @@
+
+         @font-face {
+             font-family: 'iowan_old_stylebold';
+             src: url('2131-font-webfont.woff2') format('woff2'),
+                 url('2131-font-webfont.woff') format('woff');
+             font-weight: normal;
+             font-style: normal;
+
+         }
 * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+             font-family: 'iowan_old_stylebold', serif;
         }
          .category {
             display: flex;
@@ -50,7 +60,7 @@
             font-size: 28px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 2px;
+         
             text-align: left;
             margin-bottom: 20px;
         }
@@ -68,7 +78,7 @@
         body {
             background-color: #000;
             color: white;
-            font-family: Arial, sans-serif;
+         font-family: 'iowan_old_stylebold', serif;
             padding: 20px;
         }
 
@@ -77,7 +87,7 @@
             margin-bottom: 30px;
             font-size: 24px;
             font-weight: bold;
-            letter-spacing: 2px;
+            
         }
 
         .container {
@@ -109,7 +119,7 @@
             font-size: 30px;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+         
         }
 
         .menu-content p {
@@ -157,7 +167,7 @@
             font-weight: bold;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+           
         }
 
         .menu-item {
@@ -210,7 +220,7 @@
             margin-bottom: 20px;
             text-align: center;
             text-transform: uppercase;
-            letter-spacing: 2px;
+        
         }
 
         .item-detail {

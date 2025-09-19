@@ -41,6 +41,11 @@
 
     <script>
         const enterButton = document.getElementById("enterButton");
+        const settingsBtn = document.getElementById("settingsBtn");
+
+        settingsBtn.addEventListener("click", function() {
+            window.location.href = "settings.php";
+        });
 
         enterButton.addEventListener("click", function() {
             clearAll();

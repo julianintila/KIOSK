@@ -1,0 +1,496 @@
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+       font-family: 'iowan_old_stylebold', serif;
+    }
+
+    body {
+      background: #000000;
+      color: #ffffff;
+       font-family: 'iowan_old_stylebold', serif;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    /* Container Styles */
+    .container {
+      max-width: 1024px;
+      margin: 0 auto;
+    }
+
+    .main-title {
+      color: #ffffff;
+      font-size: 1.875rem;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    /* Card Styles */
+    .requests-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .discount-request {
+    background: transparent;
+      padding: 32px;
+      max-width: 1000px;
+      margin: 0 auto;
+      border: 2px solid white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      transition: all 0.3s ease-out;
+    }
+
+    /* Header Styles */
+    .alert-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .bell-icon {
+      color: #fbbf24;
+      margin-right: 12px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .alert-title {
+      color: #ffffff;
+      font-size: 32px;
+      font-weight: 500;
+    }
+
+    .divider {
+      border-top: 1px solid #4b5563;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+
+    /* Description Styles */
+    .description {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .description-text {
+      color: #ffffff;
+      font-size: 24px;
+      margin-bottom: 4px;
+    }
+
+    .description-text:last-of-type {
+      margin-bottom: 36px;
+    }
+
+    .kiosk-number {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* Customer Details Styles */
+    .customer-details {
+      background: rgba(0, 0, 0, 0.2);
+      border: 2px solid #ffffff;
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .detail-row {
+      margin-bottom: 8px;
+      font-size: 22px;
+    }
+
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-label {
+      color: #9ca3af;
+    }
+
+    .detail-value {
+      color: #ffffff;
+      font-weight: 500;
+    }
+
+    /* Form Styles */
+    .form-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .form-select {
+      width: 500px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 2px solid #ffffff;
+      color: gray;
+      text-align: center;
+      padding: 12px 16px;
+      font-size: 18px;
+      outline: none;
+      height: 60px;
+      transition: border-color 0.2s;
+    }
+
+    .form-select:focus {
+      border-color: #fbbf24;
+    }
+
+    .form-select option {
+      background: #2a2a2a;
+      color: #ffffff;
+    }
+
+    .customer-select {
+      display: none;
+      margin-top: 12px;
+    }
+
+    /* Button Styles */
+    .button-container {
+      padding-top: 16px;
+    }
+
+    .generate-btn {
+      width: 100%;
+      background: rgb(255, 255, 255);
+      border: 2px solid #ffffff;
+      color: #000000;
+      font-weight:bold;
+      padding: 12px 24px;
+border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      height: 60px;
+      font-size: 20px;
+      outline: none;
+    }
+
+    
+
+    /* Empty State Styles */
+    .empty-state {
+      background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      padding: 48px;
+      max-width: 448px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .empty-icon {
+      color: #6b7280;
+      margin-bottom: 24px;
+      width: 40px;
+      height: 40px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .empty-text {
+      color: #9ca3af;
+      font-size: 1.125rem;
+    }
+
+    /* Overlay Styles */
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: #2a2a2a;
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      padding: 32px;
+      max-width: 448px;
+      width: 100%;
+    }
+
+    /* Discount Code Modal Specific Styles */
+    .discount-code-modal {
+      padding: 40px 32px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      background: #181818;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .modal-content {
+      text-align: center;
+    }
+
+    .discount-code-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .modal-title {
+      color: #ffffff;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .discount-code-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+
+    }
+
+    .modal-text {
+      color: #9ca3af;
+      font-size: 0.875rem;
+      margin-bottom: 16px;
+    }
+
+    .discount-code-message {
+      color: #d1d5db;
+      font-size: 1.05rem;
+      margin-bottom: 28px;
+    }
+
+    .code-display {
+      background: #374151;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+
+    .discount-code-display {
+      background: none;
+      margin-bottom: 18px;
+    }
+
+    .code-text {
+      color: #fbbf24;
+      font-size: 1.875rem;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-weight: bold;
+    }
+
+    .discount-code-value {
+      color: #fff;
+      font-size: 2.5rem;
+      font-weight: bold;
+    
+      padding: 0 0 8px 0;
+    }
+
+    .modal-note {
+      color: #d1d5db;
+      font-size: 1rem;
+      margin-bottom: 2px;
+    }
+
+    .modal-note:last-of-type {
+      margin-bottom: 18px;
+    }
+
+    .close-btn {
+      width: 100%;
+      background: #4b5563;
+      color: #ffffff;
+      font-weight: 500;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .discount-code-close {
+      margin-top: 10px;
+      background: #232323;
+      color: #fff;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      border: none;
+      padding: 12px 0;
+      font-weight: 500;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      background: #374151;
+    }
+
+   
+    @media (max-width: 768px) {
+      body {
+        padding: 16px;
+      }
+
+      .main-title {
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+      }
+
+      .discount-request,
+      .empty-state {
+        padding: 24px;
+      }
+    }
+     .confirm-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+    }
+
+    .confirm-modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #1a1a1a;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    
+      width: 500px;
+      z-index: 2001;
+    }
+
+    .confirm-modal-header {
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    .confirm-modal-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .confirm-modal-body {
+      margin-bottom: 25px;
+      color: #ffffff;
+      line-height: 1.5;
+      text-align: center;
+
+      font-size: 20px;
+    }
+
+    .confirm-modal-footer {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .confirm-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: 600;
+      transition: all 0.2s;
+      min-width: 100px;
+    }
+
+    .confirm-btn-cancel {
+      background-color: #f3f4f6;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .confirm-btn-cancel:hover {
+      background-color: #e5e7eb;
+      border-color: #9ca3af;
+    }
+
+    .confirm-btn-confirm {
+      background-color: #3b82f6;
+      color: white;
+    }
+
+    .confirm-btn-confirm:hover {
+      background-color: #2563eb;
+    }
+
+    .confirm-btn-reject {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .confirm-btn-reject:hover {
+      background-color: #dc2626;
+    }
+
+    /* Animation for modal */
+    .confirm-modal-overlay.show {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .confirm-modal-overlay.show .confirm-modal {
+      animation: slideIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }

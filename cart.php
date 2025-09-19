@@ -66,13 +66,15 @@
     <!-- Modal -->
     <div id="privilegeModal" class="modal">
         <div class="modal-content">
+            <button id="closeModal" class="close-button">&times;</button>
             <div class="modal-header">
                 <h1>Do you have a privilege card?</h1>
-                <p> (Senior Citizen, PWD card, etc.)</p>
+                <p class="subtitle">(Senior Citizen, PWD card, etc.)</p>
                 <div class="modal-buttons">
                     <button id="btnYes" class="btn btn-yes">Yes</button>
                     <button id="btnNo" class="btn btn-no">No</button>
                 </div>
+                <p class="note">Note: If you have a privilege card, kindly ask the staff for assistance.</p>
             </div>
         </div>
     </div>
@@ -123,7 +125,7 @@
         const btnNo = document.getElementById("btnNo");
 
         btnNext.addEventListener("click", async () => {
-            modal.style.display = "block";
+            modal.style.display = "flex";
         });
 
         btnYes.addEventListener("click", () => {
@@ -137,12 +139,12 @@
         });
 
 
-        window.addEventListener("click", (e) => {
-            if (e.target === modal) {
-                modal.style.display = "none";
-            }
-        });
 
+
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            modal.style.display = "none";
+        });
 
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape" && modal.style.display === "block") {
